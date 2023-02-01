@@ -44,15 +44,8 @@ public class AnimeBotDriver {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless", "--window-size=1920,1200");
 
-        Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
-
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(usernamePassword.username, usernamePassword.password);
-            }
-        });
-
         // Used to debug SMTP issues
-        session.setDebug(true);
+
         ObjectMapper objectMapper = new ObjectMapper();
         boolean noHotel = true;
 
@@ -166,24 +159,34 @@ public class AnimeBotDriver {
                 }
 
                 if (foundHotels.size() > 0) {
-                    try {
-                        // Create a default MimeMessage object.
-                        MimeMessage message = new MimeMessage(session);
-                        // Set From: header field of the header.
-                        message.setFrom(new InternetAddress(from));
-                        // Set To: header field of the header.
-                        message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-                        // Set Subject: header field
-                        message.setSubject("HOTELS AVAILABLE");
-                        // Now set the actual message
-                        message.setText(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(foundHotels));
-                        System.out.println("sending...");
-                        // Send message
-                        Transport.send(message);
-                        System.out.println("Sent message successfully....");
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if(usernamePassword.useEmail) {
+                        Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
+
+                            protected PasswordAuthentication getPasswordAuthentication() {
+                                return new PasswordAuthentication(usernamePassword.username, usernamePassword.password);
+                            }
+                        });
+                        session.setDebug(true);
+                        try {
+                            // Create a default MimeMessage object.
+                            MimeMessage message = new MimeMessage(session);
+                            // Set From: header field of the header.
+                            message.setFrom(new InternetAddress(from));
+                            // Set To: header field of the header.
+                            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+                            // Set Subject: header field
+                            message.setSubject("HOTELS AVAILABLE");
+                            // Now set the actual message
+                            message.setText(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(foundHotels));
+                            System.out.println("sending...");
+                            // Send message
+                            Transport.send(message);
+                            System.out.println("Sent message successfully....");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
+
                 }
                 driver.close();
             } catch (Exception e) {

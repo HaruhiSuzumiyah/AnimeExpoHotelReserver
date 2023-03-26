@@ -43,7 +43,7 @@ public class AnimeBotDriver {
         properties.put("mail.smtp.auth", "true");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless", "--window-size=1920,1200");
-
+        options.addArguments("--remote-allow-origins=*");
         // Used to debug SMTP issues
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -51,8 +51,8 @@ public class AnimeBotDriver {
 
         while (noHotel) {
             try {
-                WebDriver driver = new ChromeDriver(options);
-                driver.get("https://book.passkey.com/gt/219045164?gtid=bb6bfbc641ea177383d7fa732e804df7");
+                WebDriver driver = new ChromeDriver();
+                driver.get("https://book.passkey.com/go/AXAttendee2023");
                 String title = driver.getTitle();
                 driver.manage().timeouts().implicitlyWait(Duration.ofMillis(1000));
                 WebElement calendarIn = driver.findElement(By.className("check-in-value"));
